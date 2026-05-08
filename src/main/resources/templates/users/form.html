@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div th:replace="~{fragments/layout :: layout(~{::section#pg},'Utilisateurs','users')}">
+<section id="pg">
+
+  <div class="ph">
+    <div>
+      <h2 class="ph-title">
+        <span th:if="${user.id != null}">Modifier l'utilisateur</span>
+        <span th:if="${user.id == null}">Nouvel utilisateur</span>
+      </h2>
+      <p class="ph-sub">Definissez les acces au systeme</p>
+    </div>
+    <a href="/users" class="btn btn-secondary">&#8592; Retour</a>
+  </div>
+
+  <div class="form-wrap">
+    <form action="/users/save" method="post">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <input type="hidden" name="id" th:value="${user.id}"/>
+
+      <div class="form-grid">
+
+        <div class="fgroup">
+          <label class="flabel">Nom d'utilisateur *</label>
+          <input type="text" name="username" th:value="${user.username}"
+                 class="finput" placeholder="Ex: ahmed, sarra, admin2" required/>
+          <span class="fhint">Utilise pour se connecter</span>
+        </div>
+
+        <div class="fgroup">
+          <label class="flabel">
+            <span th:if="${user.id != null}">Nouveau mot de passe (laisser vide = inchange)</span>
+            <span th:if="${user.id == null}">Mot de passe *</span>
+          </label>
+          <input type="password" name="password"
+                 class="finput" placeholder="Minimum 6 caracteres"
+                 th:required="${user.id == null}"/>
+        </div>
+
+        <div class="fgroup">
+          <label class="flabel">Nom complet</label>
+          <input type="text" name="fullName" th:value="${user.fullName}"
+                 class="finput" placeholder="Ex: Ahmed Ben Ali"/>
+        </div>
+
+        <div class="fgroup">
+          <label class="flabel">Email</label>
+          <input type="email" name="email" th:value="${user.email}"
+                 class="finput" placeholder="ahmed@crt-megrine.tn"/>
+        </div>
+
+        <div class="fgroup">
+          <label class="flabel">Role *</label>
+          <select name="role" class="finput">
+            <option value="ROLE_USER"
+              th:selected="${user.role == null or user.role == 'ROLE_USER'}">
+              Utilisateur (acces standard)
+            </option>
+            <option value="ROLE_ADMIN"
+              th:selected="${user.role == 'ROLE_ADMIN'}">
+              Administrateur (acces complet)
+            </option>
+          </select>
+        </div>
+
+        <div class="fgroup" style="display:flex;align-items:flex-end;padding-bottom:4px;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:var(--gray-5);">
+            <input type="checkbox" name="enabled" value="true"
+                   th:checked="${user.id == null or user.enabled}"
+                   style="width:16px;height:16px;accent-color:var(--red);"/>
+            Compte actif
+          </label>
+        </div>
+
+      </div>
+
+      <!-- Info roles -->
+      <div style="margin-top:20px;padding:16px;background:var(--gray-1);border-radius:var(--r);border:1px solid var(--gray-2);">
+        <div style="font-size:12px;font-weight:700;color:var(--gray-4);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;">Differences des roles</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="padding:12px;background:var(--blue-bg);border-radius:var(--r);border:1px solid rgba(29,78,216,0.15);">
+            <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px;">Utilisateur</div>
+            <div style="font-size:12px;color:var(--gray-4);line-height:1.6;">
+              &#10003; Tableau de bord<br/>
+              &#10003; Benevoles<br/>
+              &#10003; Dons<br/>
+              &#10003; Stock<br/>
+              &#10007; Utilisateurs<br/>
+              &#10007; Base de donnees
+            </div>
+          </div>
+          <div style="padding:12px;background:var(--red-ghost);border-radius:var(--r);border:1px solid rgba(204,26,26,0.15);">
+            <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px;">Administrateur</div>
+            <div style="font-size:12px;color:var(--gray-4);line-height:1.6;">
+              &#10003; Tableau de bord<br/>
+              &#10003; Benevoles<br/>
+              &#10003; Dons<br/>
+              &#10003; Stock<br/>
+              &#10003; Utilisateurs<br/>
+              &#10003; Base de donnees
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">&#10003; Enregistrer</button>
+        <a href="/users" class="btn btn-secondary">Annuler</a>
+      </div>
+    </form>
+  </div>
+
+</section>
+</div>
+</body>
+</html>

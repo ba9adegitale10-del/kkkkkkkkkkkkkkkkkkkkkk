@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div th:replace="~{fragments/layout :: layout(~{::section#pg},'Utilisateurs','users')}">
+<section id="pg">
+
+  <div th:if="${success}" class="flash flash-ok">
+    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+    <span th:text="${success}"></span>
+  </div>
+  <div th:if="${error}" class="flash flash-err">
+    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span th:text="${error}"></span>
+  </div>
+
+  <div class="ph">
+    <div>
+      <h2 class="ph-title">Gestion des utilisateurs</h2>
+      <p class="ph-sub">Comptes d'acces au systeme — visible uniquement par l'administrateur</p>
+    </div>
+    <a href="/users/new" class="btn btn-primary">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nouvel utilisateur
+    </a>
+  </div>
+
+  <!-- Info box -->
+  <div style="background:var(--red-pale);border:1px solid rgba(204,26,26,0.15);border-radius:var(--r-lg);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:12px;">
+    <span style="font-size:20px;">🔒</span>
+    <div>
+      <div style="font-size:13px;font-weight:600;color:var(--red);">Acces admin uniquement</div>
+      <div style="font-size:12px;color:var(--gray-4);">Les utilisateurs avec role ADMIN voient toutes les sections. Les utilisateurs USER n'ont pas acces a la Base de donnees ni aux Utilisateurs.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Utilisateur</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:if="${users.empty}">
+          <td colspan="5">
+            <div class="empty">
+              <div class="empty-ico">👤</div>
+              <div class="empty-title">Aucun utilisateur</div>
+            </div>
+          </td>
+        </tr>
+        <tr th:each="u : ${users}">
+          <td>
+            <div style="display:flex;align-items:center;gap:11px;">
+              <div class="av" th:text="${#strings.substring(u.username,0,1).toUpperCase()}">A</div>
+              <div>
+                <div class="cell-name" th:text="${u.username}">username</div>
+                <div class="cell-sub" th:text="${u.fullName?:'—'}">Nom complet</div>
+              </div>
+            </div>
+          </td>
+          <td style="color:var(--gray-4);font-size:13px;" th:text="${u.email?:'—'}">email</td>
+          <td>
+            <span th:if="${u.role=='ROLE_ADMIN'}" class="role-pill role-admin">
+              &#9733; Administrateur
+            </span>
+            <span th:if="${u.role!='ROLE_ADMIN'}" class="role-pill role-user">
+              Utilisateur
+            </span>
+          </td>
+          <td>
+            <span th:if="${u.enabled}" class="badge b-green">Actif</span>
+            <span th:if="${!u.enabled}" class="badge b-gray">Desactive</span>
+          </td>
+          <td>
+            <div class="actions">
+              <a th:href="@{/users/edit/{id}(id=${u.id})}" class="btn btn-secondary btn-sm btn-icon" title="Modifier">&#9998;</a>
+              <a th:href="@{/users/toggle/{id}(id=${u.id})}"
+                 class="btn btn-sm btn-icon"
+                 th:classappend="${u.enabled}?' btn-secondary':' btn-green'"
+                 th:title="${u.enabled}?'Desactiver':'Activer'">
+                <span th:text="${u.enabled}?'&#128274;':'&#9989;'">&#128274;</span>
+              </a>
+              <a th:href="@{/users/delete/{id}(id=${u.id})}"
+                 class="btn btn-danger btn-sm btn-icon"
+                 title="Supprimer"
+                 onclick="return confirm('Supprimer cet utilisateur ?')">&#128465;</a>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</section>
+</div>
+</body>
+</html>
