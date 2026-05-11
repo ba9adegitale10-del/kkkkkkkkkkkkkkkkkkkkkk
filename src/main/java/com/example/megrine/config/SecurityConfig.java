@@ -16,13 +16,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
+    @Autowired private CustomUserDetailsService userDetailsService;
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -51,9 +48,8 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authBuilder =
-            http.getSharedObject(AuthenticationManagerBuilder.class);
-        authBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-        return authBuilder.build();
+        AuthenticationManagerBuilder ab = http.getSharedObject(AuthenticationManagerBuilder.class);
+        ab.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        return ab.build();
     }
 }

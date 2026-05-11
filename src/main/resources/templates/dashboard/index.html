@@ -11,85 +11,89 @@
 
   <div class="stats-grid">
     <div class="stat-card c-red">
-      <div class="stat-ico">👥</div>
-      <div class="stat-val" th:text="${totalVolunteers}">0</div>
-      <div class="stat-lbl">Bénévoles total</div>
-      <div class="stat-sub"><span th:text="${activeVolunteers}+' actifs'">0</span></div>
+      <div class="stat-ico">&#127968;</div>
+      <div class="stat-val" th:text="${totalFamilies}">0</div>
+      <div class="stat-lbl">Familles</div>
+      <div class="stat-sub"><span th:text="${activeFamilies}+' actives'">0</span></div>
     </div>
     <div class="stat-card c-amber">
-      <div class="stat-ico">❤️</div>
-      <div class="stat-val" th:text="${totalDonations}">0</div>
-      <div class="stat-lbl">Dons reçus</div>
-      <div class="stat-sub" style="background:var(--amber-bg);color:var(--amber);">Total enregistrés</div>
+      <div class="stat-ico">&#128101;</div>
+      <div class="stat-val" th:text="${totalVolunteers}">0</div>
+      <div class="stat-lbl">Benevoles</div>
+      <div class="stat-sub" style="background:var(--amber-bg);color:var(--amber);"><span th:text="${activeVolunteers}+' actifs'">0</span></div>
     </div>
     <div class="stat-card c-green">
-      <div class="stat-ico">💰</div>
+      <div class="stat-ico">&#128144;</div>
       <div class="stat-val" style="font-size:24px;" th:text="${totalAmount!=null?totalAmount.setScale(0)+' TND':'0 TND'}">0</div>
-      <div class="stat-lbl">Montant collecté</div>
-      <div class="stat-sub">Dons monétaires</div>
+      <div class="stat-lbl">Montant collecte</div>
+      <div class="stat-sub">Dons monetaires</div>
     </div>
     <div class="stat-card c-blue">
-      <div class="stat-ico">📦</div>
-      <div class="stat-val" th:text="${totalStockItems}">0</div>
-      <div class="stat-lbl">Articles en stock</div>
-      <div class="stat-sub" th:if="${lowStockCount>0}" style="background:var(--red-ghost);color:var(--red);" th:text="${lowStockCount}+' en rupture'">0</div>
-      <div class="stat-sub" th:if="${lowStockCount==0}">Stock suffisant ✓</div>
+      <div class="stat-ico">&#128197;</div>
+      <div class="stat-val" th:text="${upcomingEvents}">0</div>
+      <div class="stat-lbl">Evenements a venir</div>
+      <div class="stat-sub" style="background:var(--blue-bg);color:var(--blue);">Planifies</div>
     </div>
   </div>
 
   <div class="two-col">
+    <!-- Prochains evenements -->
     <div class="card">
       <div class="card-head">
-        <h3 class="card-title">⚠️ Alertes stock faible</h3>
-        <a href="/stock" class="btn btn-primary btn-sm">Gérer le stock</a>
+        <h3 class="card-title">Prochains evenements</h3>
+        <a href="/events/new" class="btn btn-primary btn-sm">+ Ajouter</a>
       </div>
       <div class="card-body">
-        <div th:if="${lowStockItems.empty}" class="empty" style="padding:30px;">
-          <div class="empty-ico">✅</div>
-          <div class="empty-title">Tous les stocks sont suffisants</div>
+        <div th:if="${recentEvents.empty}" class="empty" style="padding:30px;">
+          <div class="empty-ico">&#128197;</div>
+          <div class="empty-title">Aucun evenement prevu</div>
         </div>
-        <div th:each="item : ${lowStockItems}" style="display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--ink-05);">
-          <div style="width:42px;height:42px;border-radius:10px;background:var(--red-ghost);border:1px solid rgba(212,43,43,0.15);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">
-            <span style="font-family:'Playfair Display',serif;font-size:15px;color:var(--red);line-height:1;" th:text="${item.quantity}">0</span>
-            <span style="font-size:9px;color:var(--red);font-weight:600;" th:text="${item.unit?:'u.'}">u.</span>
+        <div th:each="e : ${recentEvents}" style="display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--gray-2);">
+          <div style="width:44px;height:44px;border-radius:10px;background:var(--blue-bg);border:1px solid rgba(29,78,216,0.15);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">
+            <span style="font-family:'Playfair Display',serif;font-size:16px;color:var(--blue);line-height:1;" th:text="${e.eventDate!=null?e.eventDate.dayOfMonth:'?'}">15</span>
+            <span style="font-size:9px;color:var(--blue);font-weight:700;" th:text="${e.eventDate!=null?#temporals.format(e.eventDate,'MMM',new java.util.Locale('fr')):''}">Jan</span>
           </div>
           <div style="flex:1;">
-            <div class="cell-name" th:text="${item.name}">Article</div>
-            <div class="cell-sub" th:text="'Seuil min : '+${item.quantityMin}+' '+(${item.unit}?:'')">Min</div>
+            <div class="cell-name" th:text="${e.title}">Titre</div>
+            <div class="cell-sub" th:text="${e.responsibleName!=null?'Resp: '+e.responsibleName:e.location?:'—'}">Detail</div>
           </div>
-          <span class="badge b-red">FAIBLE</span>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-head">
-        <h3 class="card-title">Bénévoles récents</h3>
-        <a href="/volunteers/new" class="btn btn-primary btn-sm">+ Ajouter</a>
+    <!-- Alertes stock + familles recentes -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="card">
+        <div class="card-head">
+          <h3 class="card-title">Stock faible</h3>
+          <a href="/stock" class="btn btn-ghost btn-sm">Voir stock</a>
+        </div>
+        <div class="card-body">
+          <div th:if="${lowStockItems.empty}" style="padding:16px 20px;font-size:13px;color:var(--green);">&#10003; Tous les stocks sont suffisants</div>
+          <div th:each="item : ${lowStockItems}" style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid var(--gray-2);">
+            <div class="cell-name" th:text="${item.name}">Article</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-weight:700;color:var(--red);" th:text="${item.quantity}">0</span>
+              <span class="badge b-red" style="font-size:9px;">FAIBLE</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="card-body">
-        <table class="tbl">
-          <thead><tr><th>Bénévole</th><th>Groupe</th><th>Statut</th></tr></thead>
-          <tbody>
-            <tr th:each="v : ${volunteers}">
-              <td>
-                <div style="display:flex;align-items:center;gap:10px;">
-                  <div class="av" th:text="${#strings.substring(v.firstName,0,1)+#strings.substring(v.lastName,0,1)}">AB</div>
-                  <div>
-                    <div class="cell-name" th:text="${v.fullName}">Nom</div>
-                    <div class="cell-sub" th:text="${v.email?:'—'}">email</div>
-                  </div>
-                </div>
-              </td>
-              <td><span class="blood" th:text="${v.bloodType?:'?'}">A+</span></td>
-              <td>
-                <span class="badge"
-                  th:classappend="${v.status.name()=='ACTIVE'}?'b-green':(${v.status.name()=='PENDING'}?'b-amber':'b-gray')"
-                  th:text="${v.status.name()=='ACTIVE'?'Actif':v.status.name()=='INACTIVE'?'Inactif':'En attente'}">S</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+
+      <div class="card">
+        <div class="card-head">
+          <h3 class="card-title">Benevoles actifs</h3>
+          <a href="/volunteers" class="btn btn-ghost btn-sm">Voir tous</a>
+        </div>
+        <div class="card-body">
+          <div th:each="v : ${volunteers}" style="display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--gray-2);">
+            <div class="av" style="width:30px;height:30px;font-size:11px;border-radius:7px;" th:text="${#strings.substring(v.firstName,0,1)+#strings.substring(v.lastName,0,1)}">AB</div>
+            <div>
+              <div class="cell-name" th:text="${v.fullName}">Nom</div>
+            </div>
+            <span class="blood" style="margin-left:auto;" th:text="${v.bloodType?:'?'}">A+</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
