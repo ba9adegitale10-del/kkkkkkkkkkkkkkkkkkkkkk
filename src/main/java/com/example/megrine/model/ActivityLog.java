@@ -16,11 +16,16 @@ public class ActivityLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String username;      // Qui a fait l'action
-    private String action;        // Ajout, Modification, Suppression
-    private String entity;        // Famille, Benevole, Don, Stock...
-    private String entityName;    // Nom de l'élément
-    private String details;       // Détails supplémentaires
+    private String username;
+    private String action;
+
+    @Column(name = "entity_type")
+    private String entityType;
+
+    @Column(name = "entity_name")
+    private String entityName;
+
+    private String details;
     private String ipAddress;
     private LocalDateTime createdAt;
 

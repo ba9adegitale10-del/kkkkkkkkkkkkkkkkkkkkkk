@@ -46,16 +46,15 @@ public class UserController {
         user.setRole(role);
         user.setEnabled("true".equals(enabled) || "on".equals(enabled));
 
-        // Mot de passe : seulement si renseigné
         if (password != null && !password.isBlank()) {
             user.setPassword(passwordEncoder.encode(password));
         } else if (id == null) {
-            ra.addFlashAttribute("error", "Le mot de passe est obligatoire pour un nouvel utilisateur.");
+            ra.addFlashAttribute("error", "Le mot de passe est obligatoire.");
             return "redirect:/users/new";
         }
 
         userRepo.save(user);
-        ra.addFlashAttribute("success", "Utilisateur enregistré avec succès !");
+        ra.addFlashAttribute("success", "Utilisateur enregistre avec succes !");
         return "redirect:/users";
     }
 
@@ -68,16 +67,24 @@ public class UserController {
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes ra) {
         try {
-        ra.addFlashAttribute("success", "Utilisateur supprimé.");
+            userRepo.deleteById(id);
+            ra.addFlashAttribute("success", "Utilisateur supprime.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Impossible de supprimer cet utilisateur.");
+        }
         return "redirect:/users";
     }
 
     @GetMapping("/toggle/{id}")
     public String toggle(@PathVariable Long id, RedirectAttributes ra) {
-        User user = userRepo.findById(id).orElseThrow();
-        user.setEnabled(!user.isEnabled());
-        userRepo.save(user);
-        ra.addFlashAttribute("success", user.isEnabled() ? "Compte activé." : "Compte désactivé.");
+        try {
+            User user = userRepo.findById(id).orElseThrow();
+            user.setEnabled(!user.isEnabled());
+            userRepo.save(user);
+            ra.addFlashAttribute("success", user.isEnabled() ? "Compte active." : "Compte desactive.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Erreur lors de la modification.");
+        }
         return "redirect:/users";
     }
 }

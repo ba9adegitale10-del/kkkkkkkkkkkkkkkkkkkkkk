@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#CC1A1A"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div th:replace="~{fragments/layout :: layout(~{::section#pg},'Dashboard Admin','admin')}">
+<section id="pg">
+
+  <!-- Stats globales -->
+  <div class="stats-grid" style="margin-bottom:24px;">
+    <div class="stat-card c-red">
+      <div class="stat-ico">&#128203;</div>
+      <div class="stat-val" th:text="${totalLogs}">0</div>
+      <div class="stat-lbl">Total actions</div>
+    </div>
+    <div class="stat-card c-green">
+      <div class="stat-ico">&#10133;</div>
+      <div class="stat-val" th:text="${createCount}">0</div>
+      <div class="stat-lbl">Ajouts</div>
+    </div>
+    <div class="stat-card c-amber">
+      <div class="stat-ico">&#9999;&#65039;</div>
+      <div class="stat-val" th:text="${updateCount}">0</div>
+      <div class="stat-lbl">Modifications</div>
+    </div>
+    <div class="stat-card c-blue">
+      <div class="stat-ico">&#128274;</div>
+      <div class="stat-val" th:text="${loginCount}">0</div>
+      <div class="stat-lbl">Connexions</div>
+    </div>
+  </div>
+
+  <!-- Stats systeme -->
+  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:28px;">
+    <div style="background:#fff;border-radius:10px;padding:16px;text-align:center;border:1px solid var(--gray-2);">
+      <div style="font-size:20px;">&#128101;</div>
+      <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--dark);" th:text="${totalUsers}">0</div>
+      <div style="font-size:11px;color:var(--gray-4);">Utilisateurs</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:16px;text-align:center;border:1px solid var(--gray-2);">
+      <div style="font-size:20px;">&#128100;</div>
+      <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--dark);" th:text="${totalVolunteers}">0</div>
+      <div style="font-size:11px;color:var(--gray-4);">Benevoles</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:16px;text-align:center;border:1px solid var(--gray-2);">
+      <div style="font-size:20px;">&#127968;</div>
+      <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--dark);" th:text="${totalFamilies}">0</div>
+      <div style="font-size:11px;color:var(--gray-4);">Familles</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:16px;text-align:center;border:1px solid var(--gray-2);">
+      <div style="font-size:20px;">&#10084;&#65039;</div>
+      <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--dark);" th:text="${totalDonations}">0</div>
+      <div style="font-size:11px;color:var(--gray-4);">Dons</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:16px;text-align:center;border:1px solid var(--gray-2);">
+      <div style="font-size:20px;">&#128230;</div>
+      <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--dark);" th:text="${totalStock}">0</div>
+      <div style="font-size:11px;color:var(--gray-4);">Articles stock</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:16px;text-align:center;border:1px solid var(--gray-2);">
+      <div style="font-size:20px;">&#128176;</div>
+      <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--green);" th:text="${totalAmount!=null?totalAmount.setScale(0)+' TND':'0'}">0</div>
+      <div style="font-size:11px;color:var(--gray-4);">Collecte</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 320px;gap:24px;">
+
+    <!-- Logs principaux -->
+    <div class="card">
+      <div class="card-head">
+        <h3 class="card-title">&#128203; Journal d'activite</h3>
+        <!-- Filtres -->
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <a href="/admin/dashboard" class="btn btn-sm"
+             th:classappend="${filterType==null and filterUser==null}?' btn-primary':' btn-secondary'">Tout</a>
+          <a href="/admin/logs/filter?type=CREATE" class="btn btn-sm"
+             th:classappend="${filterType=='CREATE'}?' btn-primary':' btn-secondary'">Ajouts</a>
+          <a href="/admin/logs/filter?type=UPDATE" class="btn btn-sm"
+             th:classappend="${filterType=='UPDATE'}?' btn-primary':' btn-secondary'">Modifs</a>
+          <a href="/admin/logs/filter?type=DELETE" class="btn btn-sm"
+             th:classappend="${filterType=='DELETE'}?' btn-primary':' btn-secondary'">Suppressions</a>
+          <a href="/admin/logs/filter?type=LOGIN" class="btn btn-sm"
+             th:classappend="${filterType=='LOGIN'}?' btn-primary':' btn-secondary'">Connexions</a>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Date &amp; Heure</th>
+              <th>Utilisateur</th>
+              <th>Action</th>
+              <th>Type</th>
+              <th>Element</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:if="${logs.empty}">
+              <td colspan="6">
+                <div class="empty">
+                  <div class="empty-ico">&#128203;</div>
+                  <div class="empty-title">Aucune activite enregistree</div>
+                  <div style="font-size:13px;color:var(--gray-4);margin-top:6px;">Les actions apparaitront ici apres utilisation du systeme</div>
+                </div>
+              </td>
+            </tr>
+            <tr th:each="log : ${logs}">
+              <td style="font-size:12px;color:var(--gray-4);white-space:nowrap;"
+                  th:text="${log.createdAt!=null?#temporals.format(log.createdAt,'dd/MM/yyyy HH:mm'):'—'}">Date</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:7px;">
+                  <div class="av" style="width:26px;height:26px;font-size:10px;border-radius:6px;"
+                       th:text="${log.username!=null?#strings.substring(log.username,0,1).toUpperCase():'?'}">A</div>
+                  <span style="font-size:13px;font-weight:600;" th:text="${log.username?:'—'}">user</span>
+                </div>
+              </td>
+              <td style="font-size:13px;" th:text="${log.action?:'—'}">Action</td>
+              <td>
+                <span class="badge"
+                  th:classappend="${log.actionType!=null and log.actionType.name()=='CREATE'}?'b-green':
+                                   (${log.actionType!=null and log.actionType.name()=='UPDATE'}?'b-amber':
+                                   (${log.actionType!=null and log.actionType.name()=='DELETE'}?'b-red':
+                                   (${log.actionType!=null and log.actionType.name()=='LOGIN'}?'b-blue':'b-gray')))"
+                  th:text="${log.actionType!=null?log.actionType.name():'—'}">TYPE</span>
+              </td>
+              <td style="font-size:12px;color:var(--gray-4);" th:text="${log.entityType?:'—'}">Type</td>
+              <td style="font-size:12px;color:var(--gray-4);" th:text="${log.details?:log.entityName?:'—'}">Details</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Sidebar stats -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+
+      <!-- Activite par utilisateur -->
+      <div class="card">
+        <div class="card-head">
+          <h3 class="card-title">&#128100; Par utilisateur</h3>
+        </div>
+        <div class="card-body">
+          <div th:if="${userActivity.empty}" style="padding:16px;font-size:13px;color:var(--gray-4);">Aucune activite</div>
+          <div th:each="row : ${userActivity}"
+               style="display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1px solid var(--gray-2);">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="av" style="width:26px;height:26px;font-size:10px;border-radius:6px;"
+                   th:text="${row[0]!=null?#strings.substring(row[0].toString(),0,1).toUpperCase():'?'}">A</div>
+              <span style="font-size:13px;font-weight:600;" th:text="${row[0]}">user</span>
+            </div>
+            <span class="badge b-blue" th:text="${row[1]}+' actions'">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activite par section -->
+      <div class="card">
+        <div class="card-head">
+          <h3 class="card-title">&#128230; Par section</h3>
+        </div>
+        <div class="card-body">
+          <div th:if="${entityActivity.empty}" style="padding:16px;font-size:13px;color:var(--gray-4);">Aucune activite</div>
+          <div th:each="row : ${entityActivity}"
+               style="display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1px solid var(--gray-2);">
+            <span style="font-size:13px;font-weight:600;" th:text="${row[0]}">Section</span>
+            <span class="badge b-amber" th:text="${row[1]}+' actions'">0</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+</div>
+</body>
+</html>
