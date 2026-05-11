@@ -72,7 +72,7 @@ public class EventController {
         }
 
         eventRepo.save(event);
-        ra.addFlashAttribute("success", "Evenement enregistre avec succes !");
+        ra.addFlashAttribute("success", "Evenement enregistre !");
         return "redirect:/events";
     }
 
@@ -86,8 +86,12 @@ public class EventController {
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes ra) {
-        eventRepo.deleteById(id);
-        ra.addFlashAttribute("success", "Evenement supprime.");
+        try {
+            eventRepo.deleteById(id);
+            ra.addFlashAttribute("success", "Evenement supprime.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Impossible de supprimer cet evenement.");
+        }
         return "redirect:/events";
     }
 }

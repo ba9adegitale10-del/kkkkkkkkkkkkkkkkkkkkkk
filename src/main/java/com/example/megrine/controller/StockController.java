@@ -48,7 +48,6 @@ public class StockController {
         item.setQuantity(0);
         item.setQuantityMin(0);
         model.addAttribute("item", item);
-        model.addAttribute("categories", StockItem.StockCategory.values());
         return "stock/form";
     }
 
@@ -80,7 +79,6 @@ public class StockController {
 
         stockRepo.save(item);
 
-        // Enregistrer mouvement si quantité change
         if (id != null && !oldQty.equals(quantity)) {
             StockMovement mv = new StockMovement();
             mv.setStockItem(item);
@@ -91,25 +89,30 @@ public class StockController {
             movementRepo.save(mv);
         }
 
-        ra.addFlashAttribute("success", "Article enregistré avec succès !");
+        ra.addFlashAttribute("success", "Article enregistre avec succes !");
         return "redirect:/stock";
     }
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Long id, Model model) {
         model.addAttribute("item", stockRepo.findById(id).orElseThrow());
-        model.addAttribute("categories", StockItem.StockCategory.values());
         return "stock/form";
     }
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes ra) {
-        stockRepo.deleteById(id);
-        ra.addFlashAttribute("success", "Article supprimé.");
+        try {
+            // Supprimer d'abord les mouvements liés
+            java.util.List<StockMovement> movements = movementRepo.findByStockItemIdOrderByMovedAtDesc(id);
+            movementRepo.deleteAll(movements);
+            stockRepo.deleteById(id);
+            ra.addFlashAttribute("success", "Article supprime.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Impossible de supprimer cet article.");
+        }
         return "redirect:/stock";
     }
 
-    // Entrée rapide de stock
     @PostMapping("/move")
     public String move(
             @RequestParam("itemId") Long itemId,
@@ -119,24 +122,27 @@ public class StockController {
             Authentication auth,
             RedirectAttributes ra) {
 
-        StockItem item = stockRepo.findById(itemId).orElseThrow();
-        boolean isIn = "IN".equals(moveType);
-        int newQty = isIn ? item.getQuantity() + qty : Math.max(0, item.getQuantity() - qty);
-        item.setQuantity(newQty);
-        item.setLastUpdated(LocalDate.now());
-        stockRepo.save(item);
+        try {
+            StockItem item = stockRepo.findById(itemId).orElseThrow();
+            boolean isIn = "IN".equals(moveType);
+            int newQty = isIn ? item.getQuantity() + qty : Math.max(0, item.getQuantity() - qty);
+            item.setQuantity(newQty);
+            item.setLastUpdated(LocalDate.now());
+            stockRepo.save(item);
 
-        StockMovement mv = new StockMovement();
-        mv.setStockItem(item);
-        mv.setQuantity(qty);
-        mv.setType(isIn ? StockMovement.MovementType.IN : StockMovement.MovementType.OUT);
-        mv.setReason(reason != null && !reason.isBlank() ? reason : (isIn ? "Entrée stock" : "Sortie stock"));
-        mv.setPerformedBy(auth != null ? auth.getName() : "Système");
-        mv.setMovedAt(LocalDateTime.now());
-        movementRepo.save(mv);
+            StockMovement mv = new StockMovement();
+            mv.setStockItem(item);
+            mv.setQuantity(qty);
+            mv.setType(isIn ? StockMovement.MovementType.IN : StockMovement.MovementType.OUT);
+            mv.setReason(reason != null && !reason.isBlank() ? reason : (isIn ? "Entree stock" : "Sortie stock"));
+            mv.setPerformedBy(auth != null ? auth.getName() : "Systeme");
+            mv.setMovedAt(LocalDateTime.now());
+            movementRepo.save(mv);
 
-        ra.addFlashAttribute("success", (isIn ? "Entrée" : "Sortie") + " de " + qty + " " +
-            (item.getUnit() != null ? item.getUnit() : "unité(s)") + " enregistrée.");
+            ra.addFlashAttribute("success", (isIn ? "Entree" : "Sortie") + " de " + qty + " enregistree.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Erreur lors du mouvement de stock.");
+        }
         return "redirect:/stock";
     }
 }

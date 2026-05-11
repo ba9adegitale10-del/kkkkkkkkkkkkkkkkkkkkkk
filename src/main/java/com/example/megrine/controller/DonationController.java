@@ -14,8 +14,7 @@ import java.time.LocalDate;
 @RequestMapping("/donations")
 public class DonationController {
 
-    @Autowired
-    private DonationRepository donationRepo;
+    @Autowired private DonationRepository donationRepo;
 
     @GetMapping
     public String list(Model model) {
@@ -54,10 +53,8 @@ public class DonationController {
 
         try { donation.setAmount(new BigDecimal(amount)); }
         catch (Exception e) { donation.setAmount(BigDecimal.ZERO); }
-
         try { donation.setType(Donation.DonationType.valueOf(type)); }
         catch (Exception e) { donation.setType(Donation.DonationType.MONETARY); }
-
         try { donation.setStatus(Donation.DonationStatus.valueOf(status)); }
         catch (Exception e) { donation.setStatus(Donation.DonationStatus.RECEIVED); }
 
@@ -69,7 +66,7 @@ public class DonationController {
         }
 
         donationRepo.save(donation);
-        ra.addFlashAttribute("success", "Don enregistré avec succès !");
+        ra.addFlashAttribute("success", "Don enregistre avec succes !");
         return "redirect:/donations";
     }
 
@@ -81,8 +78,12 @@ public class DonationController {
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes ra) {
-        donationRepo.deleteById(id);
-        ra.addFlashAttribute("success", "Don supprimé.");
+        try {
+            donationRepo.deleteById(id);
+            ra.addFlashAttribute("success", "Don supprime.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Impossible de supprimer ce don.");
+        }
         return "redirect:/donations";
     }
 }

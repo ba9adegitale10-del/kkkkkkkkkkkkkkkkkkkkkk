@@ -105,8 +105,16 @@ public class FamilyController {
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes ra) {
-        familyRepo.deleteById(id);
-        ra.addFlashAttribute("success", "Famille supprimee.");
+        try {
+            // Supprimer d'abord les aides liées
+            java.util.List<com.example.megrine.model.FamilyAid> aids = aidRepo.findByFamilyIdOrderByAidDateDesc(id);
+            aidRepo.deleteAll(aids);
+            // Puis supprimer la famille
+            familyRepo.deleteById(id);
+            ra.addFlashAttribute("success", "Famille supprimee avec succes.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Erreur lors de la suppression.");
+        }
         return "redirect:/families";
     }
 

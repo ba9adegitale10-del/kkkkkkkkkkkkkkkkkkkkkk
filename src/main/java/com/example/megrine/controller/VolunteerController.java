@@ -13,8 +13,7 @@ import java.time.LocalDate;
 @RequestMapping("/volunteers")
 public class VolunteerController {
 
-    @Autowired
-    private VolunteerRepository volunteerRepo;
+    @Autowired private VolunteerRepository volunteerRepo;
 
     @GetMapping
     public String list(Model model, @RequestParam(required = false) String search) {
@@ -71,7 +70,7 @@ public class VolunteerController {
         }
 
         volunteerRepo.save(vol);
-        ra.addFlashAttribute("success", "Bénévole enregistré avec succès !");
+        ra.addFlashAttribute("success", "Benevole enregistre avec succes !");
         return "redirect:/volunteers";
     }
 
@@ -83,8 +82,12 @@ public class VolunteerController {
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes ra) {
-        volunteerRepo.deleteById(id);
-        ra.addFlashAttribute("success", "Bénévole supprimé.");
+        try {
+            volunteerRepo.deleteById(id);
+            ra.addFlashAttribute("success", "Benevole supprime.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Impossible de supprimer ce benevole.");
+        }
         return "redirect:/volunteers";
     }
 }

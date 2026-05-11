@@ -67,7 +67,7 @@ public class UserController {
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, RedirectAttributes ra) {
-        userRepo.deleteById(id);
+        try {
         ra.addFlashAttribute("success", "Utilisateur supprimé.");
         return "redirect:/users";
     }
