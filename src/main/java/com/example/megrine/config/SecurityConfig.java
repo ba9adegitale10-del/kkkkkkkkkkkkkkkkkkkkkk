@@ -17,6 +17,8 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Autowired private CustomUserDetailsService userDetailsService;
+    @Autowired private LoginSuccessHandler loginSuccessHandler;
+    @Autowired private LogoutSuccessHandler logoutSuccessHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
@@ -25,35 +27,26 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                // Ressources publiques
                 .requestMatchers("/css/**","/js/**","/images/**","/icons/**",
                                  "/manifest.json","/sw.js").permitAll()
-
-                // ADMIN seulement
-                .requestMatchers("/database/**","/users/**",
-                                 "/admin/**",
-                                 "/training/new","/training/delete/**","/training/edit/**",
+                .requestMatchers("/database/**","/users/**","/admin/**",
+                                 "/training/new","/training/delete/**","/training/save",
                                  "/events/participants/*/complete",
                                  "/volunteers/hours/**").hasRole("ADMIN")
-
-                // MEMBER + ADMIN (espace membre)
-                .requestMatchers("/member/**",
-                                 "/training/**",
+                .requestMatchers("/member/**","/training/**",
                                  "/events/participate/**",
                                  "/events/cancel/**").hasAnyRole("MEMBER","ADMIN","USER")
-
-                // Tout le reste : connecte
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/dashboard", true)
+                .successHandler(loginSuccessHandler)
                 .failureUrl("/login?error=true")
                 .permitAll()
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout=true")
+                .logoutSuccessHandler(logoutSuccessHandler)
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
                 .deleteCookies("JSESSIONID")
