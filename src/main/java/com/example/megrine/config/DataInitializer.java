@@ -25,14 +25,14 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         if (userRepo.count() == 0) {
-            userRepo.save(new User(null, "admin", passwordEncoder.encode("admin123"), "ROLE_ADMIN", "Administrateur CRT", "admin@crt-megrine.tn", true, null));
-            userRepo.save(new User(null, "user", passwordEncoder.encode("user123"), "ROLE_USER", "Utilisateur CRT", "user@crt-megrine.tn", true, null));
-            userRepo.save(new User(null, "membre", passwordEncoder.encode("membre123"), "ROLE_MEMBER", "Membre Benevole", "membre@crt-megrine.tn", true, null));
+            User admin = new User(); admin.setUsername("admin"); admin.setPassword(passwordEncoder.encode("admin123")); admin.setRole("ROLE_ADMIN"); admin.setFullName("Administrateur CRT"); admin.setEmail("admin@crt-megrine.tn"); admin.setEnabled(true); userRepo.save(admin);
+            User user = new User(); user.setUsername("user"); user.setPassword(passwordEncoder.encode("user123")); user.setRole("ROLE_USER"); user.setFullName("Utilisateur CRT"); user.setEmail("user@crt-megrine.tn"); user.setEnabled(true); userRepo.save(user);
+            User membre = new User(); membre.setUsername("membre"); membre.setPassword(passwordEncoder.encode("membre123")); membre.setRole("ROLE_MEMBER"); membre.setFullName("Membre Benevole"); membre.setEmail("membre@crt-megrine.tn"); membre.setEnabled(true); userRepo.save(membre);
         }
         if (volunteerRepo.count() == 0) {
-            volunteerRepo.save(new Volunteer(null, "Ahmed", "Ben Ali", "ahmed@email.com", "+216 20 123 456", "A+", "Megrine", LocalDate.of(2022, 3, 15), true, Volunteer.VolunteerStatus.ACTIVE));
-            volunteerRepo.save(new Volunteer(null, "Fatima", "Trabelsi", "fatima@email.com", "+216 25 234 567", "B+", "Rades", LocalDate.of(2021, 6, 10), true, Volunteer.VolunteerStatus.ACTIVE));
-            volunteerRepo.save(new Volunteer(null, "Mohamed", "Gharbi", "mohamed@email.com", "+216 52 345 678", "O-", "Hammam Lif", LocalDate.of(2023, 1, 20), true, Volunteer.VolunteerStatus.ACTIVE));
+            Volunteer v1 = new Volunteer(); v1.setFirstName("Ahmed"); v1.setLastName("Ben Ali"); v1.setEmail("ahmed@email.com"); v1.setPhone("+216 20 123 456"); v1.setBloodType("A+"); v1.setAddress("Megrine"); v1.setJoinDate(LocalDate.of(2022, 3, 15)); v1.setActive(true); v1.setStatus(Volunteer.VolunteerStatus.ACTIVE); v1.setTotalHours(45); v1.setBadges("BRONZE"); v1.setAvailability("WEEKEND,SOIREE"); volunteerRepo.save(v1);
+            Volunteer v2 = new Volunteer(); v2.setFirstName("Fatima"); v2.setLastName("Trabelsi"); v2.setEmail("fatima@email.com"); v2.setPhone("+216 25 234 567"); v2.setBloodType("B+"); v2.setAddress("Rades"); v2.setJoinDate(LocalDate.of(2021, 6, 10)); v2.setActive(true); v2.setStatus(Volunteer.VolunteerStatus.ACTIVE); v2.setTotalHours(120); v2.setBadges("ARGENT"); v2.setAvailability("SAMEDI,DIMANCHE"); volunteerRepo.save(v2);
+            Volunteer v3 = new Volunteer(); v3.setFirstName("Mohamed"); v3.setLastName("Gharbi"); v3.setEmail("mohamed@email.com"); v3.setPhone("+216 52 345 678"); v3.setBloodType("O-"); v3.setAddress("Hammam Lif"); v3.setJoinDate(LocalDate.of(2023, 1, 20)); v3.setActive(true); v3.setStatus(Volunteer.VolunteerStatus.ACTIVE); v3.setTotalHours(8); v3.setBadges(""); v3.setAvailability("MATIN"); volunteerRepo.save(v3);
         }
         if (donationRepo.count() == 0) {
             donationRepo.save(new Donation(null, "Societe Alpha", "alpha@email.com", null, new BigDecimal("5000"), Donation.DonationType.MONETARY, "Don annuel", LocalDate.now().minusDays(5), Donation.DonationStatus.RECEIVED));
