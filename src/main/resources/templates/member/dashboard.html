@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#CC1A1A"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div th:replace="~{fragments/layout :: layout(~{::section#pg},'Mon Espace','member')}">
+<section id="pg">
+
+  <div th:if="${success}" class="flash flash-ok">&#10003; <span th:text="${success}"></span></div>
+  <div th:if="${error}" class="flash flash-err">&#10007; <span th:text="${error}"></span></div>
+
+  <!-- Header profil -->
+  <div style="background:linear-gradient(135deg,#CC1A1A,#8B0000);border-radius:16px;padding:32px;margin-bottom:24px;color:#fff;display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+    <div style="width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:32px;color:#fff;flex-shrink:0;"
+         th:text="${user.fullName!=null?#strings.substring(user.fullName,0,1).toUpperCase():user.username.substring(0,1).toUpperCase()}">A</div>
+    <div style="flex:1;">
+      <h2 style="font-family:'Playfair Display',serif;font-size:24px;font-style:italic;margin-bottom:4px;" th:text="${user.fullName!=null?user.fullName:user.username}">Nom</h2>
+      <p style="opacity:0.8;font-size:14px;" th:text="${user.email?:'—'}">Email</p>
+      <span style="display:inline-block;padding:4px 14px;background:rgba(255,255,255,0.2);border-radius:99px;font-size:12px;font-weight:700;margin-top:8px;" th:text="${user.role}">ROLE</span>
+    </div>
+    <a href="/member/availability" style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);border-radius:10px;color:#fff;text-decoration:none;font-size:13px;font-weight:600;">
+      &#128197; Mes disponibilites
+    </a>
+  </div>
+
+  <!-- Stats benevole si profil lie -->
+  <div th:if="${volunteer}" style="margin-bottom:24px;">
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:0;">
+      <div class="stat-card c-red">
+        <div class="stat-ico">&#9203;</div>
+        <div class="stat-val" th:text="${totalHours}">0</div>
+        <div class="stat-lbl">Heures benevoles</div>
+      </div>
+      <div class="stat-card c-amber">
+        <div class="stat-ico">&#127942;</div>
+        <div class="stat-val" style="font-size:16px;" th:text="${badge}">DEBUTANT</div>
+        <div class="stat-lbl">Badge actuel</div>
+      </div>
+      <div class="stat-card c-blue">
+        <div class="stat-ico">&#128101;</div>
+        <div class="stat-val" th:text="${participations!=null?participations.size():0}">0</div>
+        <div class="stat-lbl">Missions</div>
+      </div>
+    </div>
+
+    <!-- Progression badge -->
+    <div class="card" style="margin-top:16px;padding:20px 24px;">
+      <h3 class="card-title" style="margin-bottom:12px;">&#127942; Progression badges</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div th:each="b : ${ {'DEBUTANT','BRONZE','ARGENT','OR','PLATINE'} }"
+             th:style="${badge==b}?'padding:8px 16px;border-radius:99px;background:var(--red);color:#fff;font-weight:700;font-size:13px;':'padding:8px 16px;border-radius:99px;background:var(--gray-1);color:var(--gray-4);font-size:13px;'"
+             th:text="${b}">Badge</div>
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:var(--gray-4);">
+        Debutant: 0h &nbsp;|&nbsp; Bronze: 10h &nbsp;|&nbsp; Argent: 50h &nbsp;|&nbsp; Or: 150h &nbsp;|&nbsp; Platine: 500h
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <!-- Mes participations -->
+    <div class="card">
+      <div class="card-head">
+        <h3 class="card-title">&#128197; Mes missions</h3>
+        <a href="/events" class="btn btn-primary btn-sm">Voir evenements</a>
+      </div>
+      <div class="card-body">
+        <div th:if="${participations==null or participations.empty}" class="empty" style="padding:24px;">
+          <div class="empty-ico">&#128101;</div>
+          <div class="empty-title">Aucune mission</div>
+          <a href="/events" class="btn btn-primary btn-sm" style="margin-top:12px;">Parcourir les evenements</a>
+        </div>
+        <div th:each="p : ${participations}" style="padding:12px 20px;border-bottom:1px solid var(--gray-2);">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div class="cell-name" th:text="${p.event.title}">Titre</div>
+              <div class="cell-sub" th:text="${p.event.eventDate!=null?#temporals.format(p.event.eventDate,'dd/MM/yyyy'):'—'}">Date</div>
+            </div>
+            <span class="badge"
+              th:classappend="${p.status.name()=='COMPLETED'}?'b-green':(${p.status.name()=='ENROLLED'}?'b-blue':'b-gray')"
+              th:text="${p.status.name()=='COMPLETED'?'Termine ':p.status.name()=='ENROLLED'?'Inscrit':'Annule'}">S</span>
+          </div>
+          <div th:if="${p.status.name()=='COMPLETED'}" style="font-size:12px;color:var(--green);margin-top:4px;">
+            +<span th:text="${p.hoursContributed}">0</span>h comptabilisees
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formations disponibles -->
+    <div class="card">
+      <div class="card-head">
+        <h3 class="card-title">&#128218; Formations</h3>
+        <a href="/training" class="btn btn-secondary btn-sm">Tout voir</a>
+      </div>
+      <div class="card-body">
+        <div th:if="${resources==null or resources.empty}" class="empty" style="padding:24px;">
+          <div class="empty-ico">&#128218;</div>
+          <div class="empty-title">Aucune formation</div>
+        </div>
+        <div th:each="r : ${resources}" style="padding:12px 20px;border-bottom:1px solid var(--gray-2);">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div class="cell-name" th:text="${r.title}">Titre</div>
+              <div class="cell-sub" th:text="${r.category}">Cat</div>
+            </div>
+            <a th:if="${r.url!=null}" th:href="${r.url}" target="_blank"
+               style="font-size:11px;padding:4px 10px;background:var(--blue-bg);color:var(--blue);border-radius:6px;text-decoration:none;font-weight:600;">
+              &#128279; Ouvrir
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+</div>
+</body>
+</html>

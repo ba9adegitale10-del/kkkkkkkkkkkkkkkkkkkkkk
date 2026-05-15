@@ -19,13 +19,15 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired private FamilyRepository familyRepo;
     @Autowired private FamilyAidRepository aidRepo;
     @Autowired private EventRepository eventRepo;
+    @Autowired private com.example.megrine.repository.TrainingResourceRepository trainingRepo;
     @Autowired private PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) {
         if (userRepo.count() == 0) {
-            userRepo.save(new User(null, "admin", passwordEncoder.encode("admin123"), "ROLE_ADMIN", "Administrateur CRT", "admin@crt-megrine.tn", true));
-            userRepo.save(new User(null, "user", passwordEncoder.encode("user123"), "ROLE_USER", "Utilisateur CRT", "user@crt-megrine.tn", true));
+            userRepo.save(new User(null, "admin", passwordEncoder.encode("admin123"), "ROLE_ADMIN", "Administrateur CRT", "admin@crt-megrine.tn", true, null));
+            userRepo.save(new User(null, "user", passwordEncoder.encode("user123"), "ROLE_USER", "Utilisateur CRT", "user@crt-megrine.tn", true, null));
+            userRepo.save(new User(null, "membre", passwordEncoder.encode("membre123"), "ROLE_MEMBER", "Membre Benevole", "membre@crt-megrine.tn", true, null));
         }
         if (volunteerRepo.count() == 0) {
             volunteerRepo.save(new Volunteer(null, "Ahmed", "Ben Ali", "ahmed@email.com", "+216 20 123 456", "A+", "Megrine", LocalDate.of(2022, 3, 15), true, Volunteer.VolunteerStatus.ACTIVE));
@@ -52,6 +54,11 @@ public class DataInitializer implements CommandLineRunner {
             aidRepo.save(new FamilyAid(null, f1, "Aide financiere", "Loyer mois de mars", new BigDecimal("300"), null, null, LocalDate.now().minusDays(30), "Admin CRT", null, FamilyAid.AidType.MONEY));
             aidRepo.save(new FamilyAid(null, f2, "Vetements enfants", "Sac vetements hiver", null, 1, "sac", LocalDate.now().minusDays(5), "Fatima Trabelsi", null, FamilyAid.AidType.CLOTHES));
             aidRepo.save(new FamilyAid(null, f3, "Aide medicale", "Medicaments chroniques", new BigDecimal("80"), null, null, LocalDate.now().minusDays(15), "Dr. Sarra", null, FamilyAid.AidType.MEDICAL));
+        }
+        if (trainingRepo.count() == 0) {
+            trainingRepo.save(new com.example.megrine.model.TrainingResource(null, "Guide Premiers Secours CRT", "Manuel complet des gestes de premiers secours", "https://www.croissant-rouge.tn", "PDF", com.example.megrine.model.TrainingResource.ResourceCategory.PREMIERS_SECOURS, LocalDate.now(), "admin", true));
+            trainingRepo.save(new com.example.megrine.model.TrainingResource(null, "Protocole Distribution Alimentaire", "Comment organiser une distribution de paniers alimentaires", null, "LINK", com.example.megrine.model.TrainingResource.ResourceCategory.PROTOCOLE, LocalDate.now(), "admin", true));
+            trainingRepo.save(new com.example.megrine.model.TrainingResource(null, "Formation Securite Terrain", "Regles de securite pour les missions humanitaires", "https://www.croissant-rouge.tn", "VIDEO", com.example.megrine.model.TrainingResource.ResourceCategory.SECURITE, LocalDate.now(), "admin", true));
         }
         if (eventRepo.count() == 0) {
             eventRepo.save(new Event(null, "Distribution Ramadan 2026", "Distribution paniers alimentaires aux familles necessiteuses", "Siege CRT Megrine", LocalDate.now().plusDays(5), "Ahmed Ben Ali", "Ahmed Ben Ali, Fatima Trabelsi", "Ben Salah Hedi, Trabelsi Fatma, Gharbi Mohamed", 50, null, Event.EventType.DISTRIBUTION, Event.EventStatus.UPCOMING));

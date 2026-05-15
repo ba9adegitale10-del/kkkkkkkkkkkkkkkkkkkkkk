@@ -25,9 +25,24 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/icons/**",
-                                 "/manifest.json", "/sw.js").permitAll()
-                .requestMatchers("/database/**", "/users/**", "/admin/**").hasRole("ADMIN")
+                // Ressources publiques
+                .requestMatchers("/css/**","/js/**","/images/**","/icons/**",
+                                 "/manifest.json","/sw.js").permitAll()
+
+                // ADMIN seulement
+                .requestMatchers("/database/**","/users/**",
+                                 "/admin/**",
+                                 "/training/new","/training/delete/**","/training/edit/**",
+                                 "/events/participants/*/complete",
+                                 "/volunteers/hours/**").hasRole("ADMIN")
+
+                // MEMBER + ADMIN (espace membre)
+                .requestMatchers("/member/**",
+                                 "/training/**",
+                                 "/events/participate/**",
+                                 "/events/cancel/**").hasAnyRole("MEMBER","ADMIN","USER")
+
+                // Tout le reste : connecte
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

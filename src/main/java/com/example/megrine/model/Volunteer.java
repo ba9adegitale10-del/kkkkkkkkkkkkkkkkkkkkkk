@@ -29,6 +29,14 @@ public class Volunteer {
     private LocalDate joinDate;
     private boolean active = true;
 
+    // Heures de benevol at et badges
+    private Integer totalHours = 0;
+    private String badges = ""; // JSON-like: "BRONZE,SILVER"
+
+    // Disponibilites (CSV): "WEEKEND,SOIREE,MATIN"
+    @Column(length = 500)
+    private String availability = "";
+
     @Enumerated(EnumType.STRING)
     private VolunteerStatus status = VolunteerStatus.ACTIVE;
 
@@ -38,5 +46,14 @@ public class Volunteer {
 
     public String getFullName() {
         return firstName + " " + lastName;
+    }
+
+    // Calcul badge automatique selon heures
+    public String getComputedBadge() {
+        if (totalHours == null || totalHours < 10) return "DEBUTANT";
+        if (totalHours < 50)  return "BRONZE";
+        if (totalHours < 150) return "ARGENT";
+        if (totalHours < 500) return "OR";
+        return "PLATINE";
     }
 }

@@ -21,10 +21,16 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    // ROLE_ADMIN, ROLE_USER, ROLE_MEMBER
     @Column(nullable = false)
-    private String role; // ROLE_ADMIN, ROLE_USER
+    private String role;
 
     private String fullName;
     private String email;
     private boolean enabled = true;
+
+    // Lien optionnel vers le profil benevole
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "volunteer_id", nullable = true)
+    private Volunteer volunteer;
 }
