@@ -21,16 +21,35 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    // ROLE_ADMIN, ROLE_USER, ROLE_MEMBER
     @Column(nullable = false)
-    private String role;
+    private String role; // ROLE_ADMIN, ROLE_USER, ROLE_MEMBER
 
     private String fullName;
     private String email;
     private boolean enabled = true;
 
-    // Lien optionnel vers le profil benevole
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "volunteer_id", nullable = true)
     private Volunteer volunteer;
+
+    // Permissions granulaires (CSV): "VOLUNTEERS,FAMILIES,DONATIONS,STOCK,EVENTS,TRAINING,MEMBER"
+    // NULL ou vide = acces complet selon le role
+    @Column(length = 500)
+    private String permissions = "";
+
+    // Helpers
+    public boolean canAccess(String section) {
+        if (!enabled) return false;
+        if (role != null && role.equals("ROLE_ADMIN")) return true;
+        if (permissions == null || permissions.isBlank()) {
+            // Par defaut: ROLE_USER peut tout voir sauf admin
+            return true;
+        }
+        return permissions.contains(section.toUpperCase());
+    }
+
+    public boolean hasPermission(String section) {
+        if (permissions == null || permissions.isBlank()) return true;
+        return permissions.contains(section.toUpperCase());
+    }
 }
