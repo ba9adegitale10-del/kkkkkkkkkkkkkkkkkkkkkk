@@ -29,6 +29,8 @@ public class User {
     private String email;
     private String phone;
     private String cin;       // Carte identite
+    private Integer age;
+    private String bloodType; // Groupe sanguin
     private String address;
     private boolean enabled = true;
 

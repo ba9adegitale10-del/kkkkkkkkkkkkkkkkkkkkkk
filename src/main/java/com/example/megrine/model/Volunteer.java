@@ -26,6 +26,8 @@ public class Volunteer {
     private String phone;
     private String bloodType;
     private String address;
+    private String cin;
+    private Integer points = 0;
     private LocalDate joinDate;
     private boolean active = true;
 
