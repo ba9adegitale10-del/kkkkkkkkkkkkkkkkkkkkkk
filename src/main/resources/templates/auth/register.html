@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#CC1A1A"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <title>Rejoindre CRT Megrine</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div class="login-wrap">
+  <!-- Panneau gauche -->
+  <div class="login-art">
+    <div style="position:relative;z-index:1;">
+      <div class="login-logo-big">
+        <img th:src="@{/images/logo-crt.png}" alt="CRT"/>
+      </div>
+      <div class="login-art-title">Rejoignez le<br/>Croissant-Rouge</div>
+      <p class="login-art-sub">Devenez benevole et aidez les familles de Megrine. Chaque geste compte.</p>
+      <div style="margin-top:24px;">
+        <div th:each="item : ${ {'&#127919; Gagnez des points pour chaque mission','&#127942; Obtenez des badges de reconnaissance','&#128197; Inscrivez-vous aux evenements humanitaires','&#128218; Acces aux formations CRT'} }"
+             style="display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px;opacity:0.9;">
+          <span th:utext="${item}">Item</span>
+        </div>
+      </div>
+      <div style="margin-top:24px;font-size:13px;opacity:0.7;">
+        Deja inscrit ? <a href="/login" style="color:#fff;font-weight:700;">Se connecter</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaire -->
+  <div class="login-panel" style="overflow-y:auto;">
+    <div class="login-form-wrap" style="max-width:440px;">
+
+      <!-- Confirmation envoyee -->
+      <div th:if="${param.sent}" style="text-align:center;padding:40px 0;">
+        <div style="font-size:56px;margin-bottom:16px;">&#9989;</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:22px;margin-bottom:10px;">Demande envoyee !</h2>
+        <p style="font-size:14px;color:var(--gray-4);line-height:1.6;margin-bottom:24px;">
+          Votre demande d'inscription a ete soumise. Un administrateur va l'examiner et vous donner acces sous peu.
+        </p>
+        <a href="/login" class="btn btn-primary" style="display:inline-flex;justify-content:center;">&#8594; Aller a la connexion</a>
+      </div>
+
+      <div th:if="${!param.containsKey('sent')}">
+        <h2 class="login-heading">Demande d'inscription</h2>
+        <p class="login-sub">Remplissez ce formulaire — un admin validera votre compte</p>
+
+        <div th:if="${error}" class="flash flash-err" style="margin-bottom:16px;">&#10007; <span th:text="${error}"></span></div>
+
+        <form method="post" action="/register">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="login-fgroup" style="grid-column:1/-1;">
+              <label class="flabel">Nom complet *</label>
+              <input type="text" name="fullName" class="finput" placeholder="Ahmed Ben Ali" required/>
+            </div>
+            <div class="login-fgroup">
+              <label class="flabel">Nom d'utilisateur *</label>
+              <input type="text" name="username" class="finput" placeholder="ahmed_benali" required
+                     pattern="[a-zA-Z0-9_]+" title="Lettres, chiffres et _ uniquement"/>
+            </div>
+            <div class="login-fgroup">
+              <label class="flabel">Mot de passe *</label>
+              <input type="password" name="password" class="finput" placeholder="Min 6 caracteres" required minlength="6"/>
+            </div>
+            <div class="login-fgroup">
+              <label class="flabel">Email</label>
+              <input type="email" name="email" class="finput" placeholder="ahmed@email.com"/>
+            </div>
+            <div class="login-fgroup">
+              <label class="flabel">Telephone</label>
+              <input type="text" name="phone" class="finput" placeholder="+216 20 000 000"/>
+            </div>
+            <div class="login-fgroup">
+              <label class="flabel">Numero CIN</label>
+              <input type="text" name="cin" class="finput" placeholder="12345678"/>
+            </div>
+            <div class="login-fgroup" style="grid-column:1/-1;">
+              <label class="flabel">Adresse</label>
+              <input type="text" name="address" class="finput" placeholder="Cite Megrine..."/>
+            </div>
+            <div class="login-fgroup" style="grid-column:1/-1;">
+              <label class="flabel">Pourquoi voulez-vous rejoindre CRT ?</label>
+              <textarea name="registrationNote" class="finput" rows="3"
+                        placeholder="Decrivez votre motivation..." style="resize:none;"></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary login-btn" style="margin-top:16px;">
+            Soumettre ma demande &#10132;
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

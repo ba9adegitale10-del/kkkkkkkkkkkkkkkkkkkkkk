@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div th:replace="~{fragments/layout :: layout(~{::section#pg},'Demandes Inscription','admin')}">
+<section id="pg">
+
+  <div th:if="${success}" class="flash flash-ok">&#10003; <span th:text="${success}"></span></div>
+
+  <div class="ph">
+    <div>
+      <h2 class="ph-title">&#128203; Demandes d'inscription</h2>
+      <p class="ph-sub">Approuvez ou refusez les nouvelles demandes de membres</p>
+    </div>
+    <span class="badge b-red" style="font-size:14px;padding:8px 16px;" th:text="${pending.size()+' en attente'}">0</span>
+  </div>
+
+  <!-- En attente -->
+  <div th:if="${pending.empty}" class="card" style="margin-bottom:20px;">
+    <div class="empty" style="padding:40px;">
+      <div class="empty-ico">&#9989;</div>
+      <div class="empty-title">Aucune demande en attente</div>
+    </div>
+  </div>
+
+  <div th:each="user : ${pending}" class="card" style="margin-bottom:16px;border-left:4px solid var(--amber);">
+    <div style="padding:20px 24px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+            <div class="av" style="width:48px;height:48px;border-radius:12px;font-size:18px;background:var(--amber-bg);color:var(--amber);"
+                 th:text="${user.fullName!=null?#strings.substring(user.fullName,0,1).toUpperCase():'?'}">A</div>
+            <div>
+              <div style="font-weight:700;font-size:16px;" th:text="${user.fullName}">Nom</div>
+              <div style="font-size:13px;color:var(--gray-4);">@<span th:text="${user.username}">user</span></div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:12px;">
+            <div th:if="${user.email}"><div class="flabel">Email</div><div class="cell-name" th:text="${user.email}">—</div></div>
+            <div th:if="${user.phone}"><div class="flabel">Telephone</div><div class="cell-name" th:text="${user.phone}">—</div></div>
+            <div th:if="${user.cin}"><div class="flabel">CIN</div><div class="cell-name" th:text="${user.cin}">—</div></div>
+            <div th:if="${user.address}"><div class="flabel">Adresse</div><div class="cell-name" th:text="${user.address}">—</div></div>
+            <div><div class="flabel">Date demande</div><div class="cell-name" th:text="${user.registeredAt!=null?#temporals.format(user.registeredAt,'dd/MM/yyyy HH:mm'):'—'}">—</div></div>
+          </div>
+          <div th:if="${user.registrationNote}" style="padding:12px;background:var(--gray-1);border-radius:8px;font-size:13px;color:var(--dark);font-style:italic;">
+            "&#8220;<span th:text="${user.registrationNote}">Note</span>&#8221;"
+          </div>
+        </div>
+
+        <!-- Actions approbation -->
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:200px;">
+          <div style="font-size:12px;font-weight:600;color:var(--gray-4);margin-bottom:4px;">ACCES A DONNER</div>
+          <form th:action="@{/admin/registrations/approve/{id}(id=${user.id})}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <!-- Permissions rapides -->
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;">
+              <label th:each="s : ${ {'EVENTS:Evenements','TRAINING:Formations','MEMBER:Mon Espace'} }"
+                     style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:4px 8px;border:1px solid var(--gray-2);border-radius:6px;cursor:pointer;">
+                <input type="checkbox" name="sectionChecks" th:value="${s.split(':')[0]}"
+                       style="accent-color:var(--red);width:13px;height:13px;" checked/>
+                <span th:text="${s.split(':')[1]}">S</span>
+              </label>
+            </div>
+            <input type="hidden" name="permissions" value="EVENTS,TRAINING,MEMBER"/>
+            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:6px;">
+              &#10003; Approuver
+            </button>
+          </form>
+          <form th:action="@{/admin/registrations/reject/{id}(id=${user.id})}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="btn btn-danger" style="width:100%;justify-content:center;"
+                    onclick="return confirm('Refuser cette demande ?')">
+              &#10007; Refuser
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Demandes refusees -->
+  <div th:if="${!rejected.empty}">
+    <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-style:italic;color:var(--gray-4);margin:24px 0 12px;">
+      Demandes refusees
+    </h3>
+    <div th:each="user : ${rejected}" class="card" style="margin-bottom:10px;border-left:4px solid var(--gray-3);opacity:0.7;">
+      <div style="padding:14px 20px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <span style="font-weight:600;" th:text="${user.fullName}">Nom</span>
+          <span style="font-size:12px;color:var(--gray-4);margin-left:8px;">@<span th:text="${user.username}">user</span></span>
+        </div>
+        <span class="badge b-gray">Refuse</span>
+      </div>
+    </div>
+  </div>
+
+</section>
+</div>
+</body>
+</html>

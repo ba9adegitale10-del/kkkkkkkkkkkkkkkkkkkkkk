@@ -27,12 +27,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
+                // Public
                 .requestMatchers("/css/**","/js/**","/images/**","/icons/**",
-                                 "/manifest.json","/sw.js").permitAll()
+                                 "/manifest.json","/sw.js","/register/**").permitAll()
+                // Admin seulement
                 .requestMatchers("/database/**","/users/**","/admin/**",
                                  "/training/new","/training/delete/**","/training/save",
-                                 "/events/participants/*/complete",
-                                 "/volunteers/hours/**").hasRole("ADMIN")
+                                 "/events/participants/*/complete").hasRole("ADMIN")
+                // Membres seulement (pas admin)
                 .requestMatchers("/member/**","/training/**",
                                  "/events/participate/**",
                                  "/events/cancel/**").hasAnyRole("MEMBER","ADMIN","USER")
