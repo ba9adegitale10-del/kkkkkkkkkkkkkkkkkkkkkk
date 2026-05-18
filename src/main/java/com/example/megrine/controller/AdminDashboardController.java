@@ -37,7 +37,10 @@ public class AdminDashboardController {
         model.addAttribute("totalStock",   stockRepo.count());
         model.addAttribute("totalEvents",  eventRepo.count());
         model.addAttribute("totalParticipations", participationRepo.count());
+        model.addAttribute("pendingCount",
+            userRepo.countByAccountStatus(com.example.megrine.model.User.AccountStatus.PENDING));
         model.addAttribute("recentLogins", logRepo.findByActionTypeOrderByCreatedAtDesc(ActivityLog.ActionType.LOGIN));
+        model.addAttribute("pendingCount", userRepo.countByAccountStatus(com.example.megrine.model.User.AccountStatus.PENDING));
     }
 
     @GetMapping("/dashboard")

@@ -99,7 +99,7 @@ public class RegistrationController {
         user.setPoints(0);
         user.setRegisteredAt(LocalDateTime.now());
         user.setRegistrationNote(note);
-        user.setPermissions("EVENTS,TRAINING,MEMBER");
+        user.setPermissions(""); // Vide = acces complet (benevoles, events, formations, mon espace)
         user.setVolunteer(savedVol); // Lien direct
         userRepo.save(user);
 
@@ -114,7 +114,9 @@ public class RegistrationController {
 
     @GetMapping("/admin/registrations")
     public String pendingList(Model model) {
-        model.addAttribute("pending", userRepo.findByAccountStatus(User.AccountStatus.PENDING));
+        java.util.List<User> pendingList = userRepo.findByAccountStatus(User.AccountStatus.PENDING);
+        model.addAttribute("pending", pendingList);
+        model.addAttribute("pendingCount", (long) pendingList.size());
         model.addAttribute("rejected", userRepo.findByAccountStatus(User.AccountStatus.REJECTED));
         return "admin/registrations";
     }
