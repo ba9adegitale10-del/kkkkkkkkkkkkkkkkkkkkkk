@@ -3,7 +3,6 @@ package com.example.megrine.controller;
 import com.example.megrine.model.Event;
 import com.example.megrine.model.User;
 import com.example.megrine.repository.*;
-import com.example.megrine.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,7 +17,6 @@ public class DashboardController {
     @Autowired private StockMovementRepository movementRepo;
     @Autowired private FamilyRepository familyRepo;
     @Autowired private EventRepository eventRepo;
-    @Autowired private UserRepository userRepo;
     @Autowired private UserRepository userRepo;
 
     @GetMapping("/dashboard")
@@ -35,8 +33,6 @@ public class DashboardController {
         model.addAttribute("lowStockItems", stockRepo.findLowStock());
         model.addAttribute("recentEvents", eventRepo.findByStatusOrderByEventDateAsc(Event.EventStatus.UPCOMING));
         model.addAttribute("volunteers", volunteerRepo.findAll().stream().limit(5).toList());
-        model.addAttribute("pendingCount",
-            userRepo.countByAccountStatus(User.AccountStatus.PENDING));
         return "dashboard/index";
     }
 }
