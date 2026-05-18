@@ -47,7 +47,19 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
             // Silent fail
         }
 
-        response.sendRedirect("/dashboard");
+        // Redirect based on role
+        boolean isMember = auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_MEMBER"));
+        boolean isAdmin = auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean isUser = auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_USER"));
+
+        if (isMember && !isAdmin && !isUser) {
+            response.sendRedirect("/member");
+        } else {
+            response.sendRedirect("/dashboard");
+        }
     }
 
     private String getBrowser(HttpServletRequest request) {

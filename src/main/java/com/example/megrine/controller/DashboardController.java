@@ -20,7 +20,17 @@ public class DashboardController {
     @Autowired private UserRepository userRepo;
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model) {
+    public String dashboard(Model model,
+            org.springframework.security.core.Authentication auth) {
+        // Rediriger les membres vers Mon Espace
+        if (auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_MEMBER"))
+            && auth.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
+            && auth.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_USER"))) {
+            return "redirect:/member";
+        }
         model.addAttribute("totalVolunteers", volunteerRepo.count());
         model.addAttribute("activeVolunteers", volunteerRepo.countByActiveTrue());
         model.addAttribute("totalDonations", donationRepo.count());
